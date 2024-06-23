@@ -1,3 +1,9 @@
+const asyncTask = function(to) {
+    return new Promise((resolve, reject)=>{
+        setTimeout(() => resolve(`Completed ${to} now.`), 100 * to);
+    })
+}
+
 // 1. Promise.all polyfill
 function promiseAll(promises){
     const results = [];
@@ -55,5 +61,79 @@ Promise.prototype.finally = function(callback) {
 
 
 // 5. Execute Promises in series - 3 ways 
+// 5.1 using async await
+const asyncSeries = async function(promises) {
+    for (const promise in promises) {
+        try {
+            const result = await promise;
+            console.log(result);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+}
+
+const seriestask = [asyncTask(4), asyncTask(2), asyncTask(6), asyncTask(3)]
+// asyncSeries(seriestask);
+// 5.2 using recursion
+const asyncSeriesRecursion = (promises) => {
+    let promise = promises.shift();
+    promise.then((data) => {
+        console.log(data);
+        if(promises.length > 0){
+            asyncSeriesRecursion(promises)
+        }
+    })
+}
+
+// asyncSeriesRecursion(seriestask);
+
+const asyncSeriesReduce = (promises) => {
+    promises.reduce((acc, cur, index, array) => {
+        return acc.then(()=>{
+            return cur.then((value)=>{
+                console.log("Reduce: ", value);
+            })
+        })
+    }, Promise.resolve());
+}
+
+// asyncSeriesReduce(seriestask)
 
 // 6. Execute Promises in parallel
+const executeInPrallel = (promises, callback) => {
+    const results = [];
+    let tasksCompleted = 0;
+    promises.forEach(promise => {
+        promise(value=> {
+            results.push(value);
+            tasksCompleted += 1;
+            if(tasksCompleted >= promises.length) {
+                callback(results);
+            }
+        })
+    });
+}
+
+const asynchroTask = () => {
+    const v = Math.floor(Math.random()*10);
+    return function(callback) {
+        setTimeout(() => {
+            callback(v+" pra")
+        }, v * 1000);
+    }
+}
+
+const parAsyncTasks = [
+    asynchroTask(),
+    asynchroTask(),
+    asynchroTask(),
+    asynchroTask(),
+    asynchroTask(),
+    asynchroTask(),
+    asynchroTask()
+]
+
+executeInPrallel(parAsyncTasks, (value) => {
+    console.log(value);
+});
