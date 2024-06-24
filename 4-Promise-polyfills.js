@@ -59,9 +59,19 @@ Promise.prototype.finally = function(callback) {
     )
 }
 
+// 5. Promise.allSettled
+const allSettled = (promises) => {
+    const mappedPromises = promises.map((p)=>p.resolve(p)
+        .then(
+            res => ({status: 'fulfilled', value: res}), 
+            rej => ({status: 'rejected', value: err}),
+        )
+    )
+    return Promise.all(mappedPromises);
+}
 
-// 5. Execute Promises in series - 3 ways 
-// 5.1 using async await
+// 6. Execute Promises in series - 3 ways 
+// 6.1 using async await
 const asyncSeries = async function(promises) {
     for (const promise in promises) {
         try {
@@ -75,7 +85,7 @@ const asyncSeries = async function(promises) {
 
 const seriestask = [asyncTask(4), asyncTask(2), asyncTask(6), asyncTask(3)]
 // asyncSeries(seriestask);
-// 5.2 using recursion
+// 6.2 using recursion
 const asyncSeriesRecursion = (promises) => {
     let promise = promises.shift();
     promise.then((data) => {
@@ -86,7 +96,7 @@ const asyncSeriesRecursion = (promises) => {
     })
 }
 
-// asyncSeriesRecursion(seriestask);
+// 6.3 asyncSeriesRecursion(seriestask);
 
 const asyncSeriesReduce = (promises) => {
     promises.reduce((acc, cur, index, array) => {
@@ -100,7 +110,7 @@ const asyncSeriesReduce = (promises) => {
 
 // asyncSeriesReduce(seriestask)
 
-// 6. Execute Promises in parallel
+// 7. Execute Promises in parallel
 const executeInPrallel = (promises, callback) => {
     const results = [];
     let tasksCompleted = 0;
